@@ -127,6 +127,25 @@ Estos conceptos no son exclusivos de Node:
 
 Node expone estos detalles de bajo nivel mediante `node:http`; Bun los hace accesibles al ejecutar esa API compatible.
 
+## Comparación: `node:http` y Nitro
+
+En `node:http` construimos manualmente:
+
+```text
+createServer → leer URL → separar segmentos → elegir ruta
+             → writeHead → JSON.stringify → end
+```
+
+Nitro conserva el mismo modelo HTTP, pero abstrae parte del trabajo operativo:
+
+```text
+server/api/products.get.ts → Nitro registra la ruta
+                            → handler(event)
+                            → objeto/JSON → respuesta HTTP
+```
+
+La request, los headers, el body, el status y los errores siguen existiendo. Lo que cambia es quién resuelve el servidor y el routing. Nitro usa routing basado en archivos y puede construir servidores para distintos runtimes; no reemplaza los fundamentos, los organiza detrás de una API de mayor nivel.
+
 ### Error 15: Mezclar validación con respuesta HTTP
 
 La función `isValidQuantity` recibió `ServerResponse` y `products` y envió status directamente. Una validación debe devolver un booleano; el handler HTTP utiliza ese resultado para decidir si responde `200` o `400`. También debe detener el flujo tras una respuesta, para no intentar enviar dos responses.

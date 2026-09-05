@@ -56,6 +56,8 @@ PostgreSQL, autenticación, testing y producción
 ### Ejercicios
 - [`exercises/01-modelado-productos/`](exercises/01-modelado-productos/) — Modelo y catálogo de productos en memoria.
 - [`exercises/02-api-http-node/`](exercises/02-api-http-node/) — API HTTP con Bun como runtime y `node:http`.
+- [`exercises/03-api-responses-y-validacion/`](exercises/03-api-responses-y-validacion/) — CRUD en memoria y validación HTTP.
+- [`exercises/04-nitro-api/`](exercises/04-nitro-api/) — Mismo concepto con routing y handlers de Nitro.
 
 ---
 
@@ -68,6 +70,8 @@ PostgreSQL, autenticación, testing y producción
 | **Tipado en TypeScript** | Practiced | 2026-09-05 | Interfaz `Product` y colecciones en memoria |
 | **Flujo de Ejecución & Retornos** | Practiced | 2026-09-05 | Análisis de retornos tempranos y bucles en `getProducts` |
 | **API HTTP con `node:http`** | Practiced | 2026-09-05 | Rutas `GET`, respuestas JSON, `404` y `405` |
+| **Validación y CRUD en memoria** | Practiced | 2026-09-05 | `POST`, `PATCH`, `DELETE`, `400`, `409`, `201`, `204` |
+| **Nitro** | Learning | 2026-09-05 | Próximo: routing por archivos y handlers |
 
 > **Escala de Dominio:**
 > - `Learning`: Concepto introducido; guiado.
