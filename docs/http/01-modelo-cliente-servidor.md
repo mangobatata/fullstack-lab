@@ -153,6 +153,36 @@ Después de enviar una respuesta con `sendJSON`, el callback debe ejecutar `retu
 
 En `node:http`, `createServer` entrega esos objetos al callback. Solo se importa `createServer`; el objeto de request ya llega como parámetro (`req`) y no debe importarse como una función aparte.
 
+## Registro de mentoría — 2026-09-05
+
+### Decisiones y conceptos practicados
+
+- `GET` se usa para leer el catálogo.
+- `request` contiene `method` y `url`; `response` construye la respuesta.
+- La ruta se obtiene con `new URL(...).pathname` y sus segmentos con `split("/")`.
+- `find` busca un único producto y devuelve `Product | undefined`.
+- El handler traduce ese resultado a `200`, `404` o `405`.
+- Las respuestas JSON se centralizaron en `sendJSON`.
+- Bun ejecuta TypeScript y `node:http` proporciona el servidor.
+
+### Pruebas realizadas
+
+```text
+GET /products                  → 200 + lista JSON
+GET /products/wireless-mouse   → 200 + producto JSON
+GET /products/gd               → 404 + error JSON
+GET /unknown                   → 404 + error JSON
+POST /products                 → 405 + error JSON
+```
+
+### Bitácora de intentos reales
+
+Durante la sesión se corrigieron: retornos prematuros dentro de bucles, uso de `filter` para una búsqueda individual, predicados que devolvían números o datos en vez de booleanos, comprobaciones redundantes de `slug`, retorno de datos directamente desde un handler HTTP, respuestas no finalizadas, mezcla de status con body JSON, ausencia de `return` tras responder y confusión entre el runtime Bun y la API HTTP `node:http`.
+
+### Error 14: Confundir recurso inexistente con entrada inválida
+
+Una cantidad negativa no implica que falte un recurso. El recurso existe, pero los datos recibidos no cumplen las reglas del dominio; por eso corresponde `400 Bad Request`. El `404 Not Found` queda reservado para un recurso o ruta que no existe.
+
 ### Error 11: Retornar datos no envía una respuesta HTTP
 
 Dentro del callback de `createServer`, `return products` solo retorna desde esa función de JavaScript; Node no lo convierte automáticamente en un body HTTP. Para responder hay que usar `res`, definir el estado y headers necesarios, y finalizar la respuesta con `res.end(...)`.

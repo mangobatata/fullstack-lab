@@ -42,6 +42,95 @@ Producto almacenado ── quantity ──► stock calculado ──► Respuest
 
 Así no existen dos valores persistidos que puedan quedar desalineados.
 
+### Validación de cantidad
+
+La cantidad de inventario debe cumplir esta regla:
+
+```text
+quantity = 0  ──► producto válido, sin disponibilidad
+quantity > 0  ──► producto válido, disponible
+quantity < 0  ──► dato inválido, se rechaza
+```
+
+Una cantidad negativa no representa un estado normal del inventario; indica un error de entrada o de negocio.
+
+La corrección conceptual es distinguir la identidad del recurso de la validez de sus datos: que exista un producto no implica que cualquier `quantity` recibido sea aceptable.
+
+La validación se implementó como un módulo independiente en `exercises/03-api-responses-y-validacion/isValidQuantity.ts`. Su contrato es booleano y no depende de HTTP ni de la colección de productos.
+
+Pruebas realizadas: `isValidQuantity(0)` devuelve `true` e `isValidQuantity(-1)` devuelve `false`.
+
+La validación debe ejecutarse antes de procesar o persistir el producto. `quantity = 0` se acepta como estado válido “sin stock”; solo los valores negativos se rechazan.
+
+### Error 16: Validar el inventario existente como si fuera input nuevo
+
+Se intentó validar `product.quantity` dentro de `GET /products/:slug`. Esa ruta consulta un producto ya almacenado; la validación de entrada corresponde antes de crear o actualizar un producto, por ejemplo en un `POST` o `PATCH`. Además, `quantity = 0` es válido y significa “sin stock”, no una solicitud inválida.
+
+### Error 17: Buscar un recurso existente durante un `POST` de creación
+
+En `POST /products` se intentó usar `findProductBySlug` y el `slug` de la URL. Una creación recibe los datos del nuevo producto en el body de la request; no debe buscar primero un producto existente. Si la creación es exitosa, la respuesta apropiada es `201 Created`.
+
+### Flujo implementado para validar un `POST`
+
+```text
+request body
+    │
+    ├── JSON inválido ───────────────► 400
+    ├── quantity ausente/no numérica ─► 400
+    ├── quantity < 0 ────────────────► 400
+    └── quantity >= 0 ───────────────► 201
+```
+
+En este ejercicio la entrada válida se devuelve como producto validado; todavía no se persiste en una base de datos.
+
+Prueba adicional realizada: un `POST` con `quantity` como string devuelve `400 Bad Request`, porque el campo debe ser numérico.
+
+Un segundo caso probado fue un body JSON mal formado; el parser falla y la API responde `400 Bad Request`.
+
+También debe rechazarse un JSON válido que no incluya la propiedad obligatoria `quantity`; la sintaxis puede ser correcta aunque el contrato del producto esté incompleto.
+
+`id` y `slug` también forman parte del contrato. El `id` debe tener un valor numérico válido; el `slug` debe ser una cadena válida y, además, no puede duplicar el slug de otro producto. La comprobación de unicidad necesita consultar la colección existente.
+
+Si el `slug` ya existe, corresponde `409 Conflict`: la request puede estar bien formada, pero no puede aceptarse porque contradice el estado actual del catálogo.
+
+El `POST` ahora valida `slug` antes de aceptar la entrada: si falta o está vacío responde `400`; si ya existe en `products`, responde `409` mediante `findProductBySlug`.
+
+También valida que `id` sea un entero positivo y utiliza `findProductById` para responder `409 Conflict` si el identificador ya existe.
+
+La implementación final del ejercicio valida todos los campos requeridos: `id` entero positivo, `name` no vacío, `price` finito y no negativo, `quantity` finita y no negativa, y `slug` no vacío. Los duplicados de `id` y `slug` responden `409 Conflict`.
+
+El CRUD en memoria quedó completado:
+
+```text
+POST /products      → 201 Created
+PATCH /products/4   → 200 OK y producto actualizado
+DELETE /products/4  → 204 No Content
+DELETE /products/4  → 404 Not Found
+```
+
+Prueba realizada: un `POST` sin `slug` respondió `400 Bad Request` con el mensaje `slug debe ser una cadena no vacía`.
+
+### Error 18: Confundir `number` con identificador positivo entero
+
+El tipo TypeScript `number` permite negativos, cero y decimales. Si el dominio exige identificadores positivos, la validación debe comprobar que el valor sea entero y mayor que cero; la anotación de tipo por sí sola no impone esa regla.
+
+### Error 19: Importar una función desde el módulo equivocado
+
+Al conectar la validación del `id`, se intentó importar `findProductById` desde el módulo del catálogo, aunque la función estaba definida en `exercises/03-api-responses-y-validacion/utils.ts`. TypeScript detectó el error; la corrección fue importar cada función desde el módulo que realmente la exporta.
+
+### Streams, chunks y `Transfer-Encoding: chunked`
+
+Estos conceptos no son exclusivos de Node:
+
+- `req` es un stream legible (`Readable`), por lo que el body puede llegar en varios `chunks` o fragmentos. El helper `readBody` los acumula antes de hacer `JSON.parse`.
+- `Transfer-Encoding: chunked` es un mecanismo de HTTP/1.1 para enviar un body sin conocer previamente su `Content-Length`. En las pruebas apareció porque la respuesta se cerró con `res.end` sin establecer manualmente esa longitud.
+
+Node expone estos detalles de bajo nivel mediante `node:http`; Bun los hace accesibles al ejecutar esa API compatible.
+
+### Error 15: Mezclar validación con respuesta HTTP
+
+La función `isValidQuantity` recibió `ServerResponse` y `products` y envió status directamente. Una validación debe devolver un booleano; el handler HTTP utiliza ese resultado para decidir si responde `200` o `400`. También debe detener el flujo tras una respuesta, para no intentar enviar dos responses.
+
 ### Modelo interno vs. respuesta al cliente
 
 Una transformación con `map` crearía nuevos objetos para una respuesta, pero no es obligatoria si `stock` puede calcularse al serializar o directamente en el cliente:

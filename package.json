@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "ex01": "bun run exercises/01-modelado-productos/index.ts",
-    "ex02": "bun run exercises/02-api-http-bun/index.ts",
+    "ex02": "bun run exercises/02-api-http-node/index.ts",
+    "ex03": "bun run exercises/03-api-responses-y-validacion/index.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {},

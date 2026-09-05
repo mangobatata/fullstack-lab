@@ -26,6 +26,23 @@ Este repositorio documenta el razonamiento, experimentos, código, errores y evo
 [          ] Nivel 6 — Producto & Producción (Docker, Linux, Deploy, Monitoreo)
 ```
 
+### Progresión de herramientas
+
+```text
+Fundamentos HTTP con node:http
+            │
+            ▼
+APIs con Bun/Node y persistencia
+            │
+            ▼
+Nuxt + Nitro + Vue abstraen routing, handlers y respuestas HTTP
+            │
+            ▼
+PostgreSQL, autenticación, testing y producción
+```
+
+`node:http` se usa aquí como una lupa para comprender la base del protocolo. No es el destino tecnológico final del laboratorio.
+
 ---
 
 ## Índice de Documentación (`docs/`)
@@ -38,7 +55,7 @@ Este repositorio documenta el razonamiento, experimentos, código, errores y evo
 
 ### Ejercicios
 - [`exercises/01-modelado-productos/`](exercises/01-modelado-productos/) — Modelo y catálogo de productos en memoria.
-- [`exercises/02-api-http-bun/`](exercises/02-api-http-bun/) — API HTTP con Bun como runtime y `node:http`.
+- [`exercises/02-api-http-node/`](exercises/02-api-http-node/) — API HTTP con Bun como runtime y `node:http`.
 
 ---
 
