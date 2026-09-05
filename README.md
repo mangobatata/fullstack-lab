@@ -36,6 +36,10 @@ Este repositorio documenta el razonamiento, experimentos, código, errores y evo
 ### Backend & Arquitectura
 - [`docs/backend/01-modelado-y-colecciones-en-memoria.md`](docs/backend/01-modelado-y-colecciones-en-memoria.md) — Modelado de contratos (`interface`), estado en memoria y entrega de colecciones.
 
+### Ejercicios
+- [`exercises/01-modelado-productos/`](exercises/01-modelado-productos/) — Modelo y catálogo de productos en memoria.
+- [`exercises/02-api-http-bun/`](exercises/02-api-http-bun/) — API HTTP con Bun como runtime y `node:http`.
+
 ---
 
 ## Registro de Estado de Aprendizaje
@@ -46,6 +50,7 @@ Este repositorio documenta el razonamiento, experimentos, código, errores y evo
 | **Ciclo Request / Response** | Practiced | 2026-09-05 | Identificación de `GET /productos` y `Status Code + Body` |
 | **Tipado en TypeScript** | Practiced | 2026-09-05 | Interfaz `Product` y colecciones en memoria |
 | **Flujo de Ejecución & Retornos** | Practiced | 2026-09-05 | Análisis de retornos tempranos y bucles en `getProducts` |
+| **API HTTP con `node:http`** | Practiced | 2026-09-05 | Rutas `GET`, respuestas JSON, `404` y `405` |
 
 > **Escala de Dominio:**
 > - `Learning`: Concepto introducido; guiado.
