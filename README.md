@@ -33,6 +33,9 @@ Este repositorio documenta el razonamiento, experimentos, código, errores y evo
 ### HTTP & Networking
 - [`docs/http/01-modelo-cliente-servidor.md`](docs/http/01-modelo-cliente-servidor.md) — Modelo Cliente-Servidor, ciclo Request/Response y componentes HTTP básicos.
 
+### Backend & Arquitectura
+- [`docs/backend/01-modelado-y-colecciones-en-memoria.md`](docs/backend/01-modelado-y-colecciones-en-memoria.md) — Modelado de contratos (`interface`), estado en memoria y entrega de colecciones.
+
 ---
 
 ## Registro de Estado de Aprendizaje
@@ -41,7 +44,8 @@ Este repositorio documenta el razonamiento, experimentos, código, errores y evo
 | :--- | :--- | :--- | :--- |
 | **Modelo Cliente-Servidor** | Practiced | 2026-09-05 | Petición de catálogo en navegador |
 | **Ciclo Request / Response** | Practiced | 2026-09-05 | Identificación de `GET /productos` y `Status Code + Body` |
-| **Tipado en TypeScript** | Learning | 2026-09-05 | Modelado inicial de entidades |
+| **Tipado en TypeScript** | Practiced | 2026-09-05 | Interfaz `Product` y colecciones en memoria |
+| **Flujo de Ejecución & Retornos** | Practiced | 2026-09-05 | Análisis de retornos tempranos y bucles en `getProducts` |
 
 > **Escala de Dominio:**
 > - `Learning`: Concepto introducido; guiado.
