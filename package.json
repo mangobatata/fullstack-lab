@@ -1,0 +1,14 @@
+{
+  "name": "fullstack-lab",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "ex01": "bun run exercises/01-modelado-productos/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/bun": "^1.4.1",
+    "typescript": "^7.0.2"
+  }
+}
