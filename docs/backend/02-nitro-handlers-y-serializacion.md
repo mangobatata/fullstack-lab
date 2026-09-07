@@ -63,6 +63,14 @@ readBody<CreateProductInput> → 400 sin body/campos → 409 slug duplicado → 
 
 Aprendizajes: `Partial`/DTO para input no confiable; `!quantity` rechazaba el `0` válido (corregido a `=== undefined`); `id: length + 1`; `201` para creación; contrato recurso-directo también en POST. Verificado: `201` + producto, `409` duplicado, `201` con `quantity: 0`.
 
+## PATCH parcial (2026-09-07)
+
+```text
+:slug → 404 si no existe → readBody<Partial<Create>> → 400 body vacío → validar solo lo que vino (!== undefined) → 409 slug de otro → 200 + producto
+```
+
+Lección: PATCH valida condicionalmente (PUT exigiría todo). Verificado: parcial `200`, `404`, `409`, `tsc` limpio, recurso directo.
+
 ## Seguridad: `stack` en dev vs. producción (2026-09-07)
 
 En `nitro dev` el `404` incluía `stack` con rutas internas (`/home/.../node_modules/...`). El alumno detectó el riesgo: expone dónde vive el proyecto. Verificado con `nitro build` + producción: el body queda solo en `{ error, status, message }`, sin `stack`. Regla: log detallado en el servidor, mensaje mínimo al cliente.
