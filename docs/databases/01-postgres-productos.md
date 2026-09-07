@@ -201,3 +201,7 @@ Fuentes oficiales consultadas:
 ## Columna name con btrim (2026-09-07)
 
 Verificado en vivo: `SELECT btrim('   ') <> '';` → `f`. Definición acordada: `name TEXT NOT NULL CHECK (btrim(name) <> '')`. Rechaza `NULL`, `''` y solo-espacios.
+
+## Columna price exacta (2026-09-07)
+
+Verificado: `SELECT 0.1::float + 0.2::float;` → `0.30000000000000004`. Definición: `price NUMERIC(10,2) NOT NULL CHECK (price >= 0)`. El alumno corrigió primero un CHECK invertido (`price < 0` rechazaba precios válidos).
