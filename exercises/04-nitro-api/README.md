@@ -21,5 +21,27 @@ Si Nitro registra una ruta a partir del nombre de un archivo, ¿qué nombre tend
 
 ## Documentación
 
+## Retoma — 2026-09-07
+
+El handler está implementado en `server/api/products/index.get.ts` e importa
+la colección desde `data/api.ts`. La rama está en estado `Learning` para Nitro.
+El build se comprobó en la sesión anterior; falta registrar una prueba HTTP del endpoint.
+
+Próximo paso: ejecutar el servidor desde este ejercicio con `bun run dev` y
+consultar `GET /api/products` en el puerto que indique la terminal.
+Antes de probar, anticipar qué status y body debería recibir el cliente.
+
+No se registraron nuevos errores del alumno en esta retoma.
+
+## Prueba HTTP — 2026-09-07
+
+```bash
+curl -i http://localhost:3000/api/products
+```
+
+Respuesta: `HTTP/1.1 200` + `content-type: application/json` + array de 3 productos.
+Confirma la hipótesis: el handler retorna `Product[]` y Nitro serializa a HTTP.
+
+
 - [Nitro oficial](https://nitro.build/)
 - [Repositorio de aprendizaje](../../README.md)

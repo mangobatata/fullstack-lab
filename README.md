@@ -52,6 +52,7 @@ PostgreSQL, autenticación, testing y producción
 
 ### Backend & Arquitectura
 - [`docs/backend/01-modelado-y-colecciones-en-memoria.md`](docs/backend/01-modelado-y-colecciones-en-memoria.md) — Modelado de contratos (`interface`), estado en memoria y entrega de colecciones.
+- [`docs/backend/02-nitro-handlers-y-serializacion.md`](docs/backend/02-nitro-handlers-y-serializacion.md) — Handler retorna valor JS, Nitro serializa a HTTP.
 
 ### Ejercicios
 - [`exercises/01-modelado-productos/`](exercises/01-modelado-productos/) — Modelo y catálogo de productos en memoria.
@@ -71,7 +72,7 @@ PostgreSQL, autenticación, testing y producción
 | **Flujo de Ejecución & Retornos** | Practiced | 2026-09-05 | Análisis de retornos tempranos y bucles en `getProducts` |
 | **API HTTP con `node:http`** | Practiced | 2026-09-05 | Rutas `GET`, respuestas JSON, `404` y `405` |
 | **Validación y CRUD en memoria** | Practiced | 2026-09-05 | `POST`, `PATCH`, `DELETE`, `400`, `409`, `201`, `204` |
-| **Nitro** | Learning | 2026-09-05 | Próximo: routing por archivos y handlers |
+| **Nitro** | Practiced | 2026-09-05 | `GET /api/products`: handler retorna array, Nitro serializa a `200` + JSON |
 
 > **Escala de Dominio:**
 > - `Learning`: Concepto introducido; guiado.
