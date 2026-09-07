@@ -71,6 +71,14 @@ Aprendizajes: `Partial`/DTO para input no confiable; `!quantity` rechazaba el `0
 
 Lección: PATCH valida condicionalmente (PUT exigiría todo). Verificado: parcial `200`, `404`, `409`, `tsc` limpio, recurso directo.
 
+## DELETE con 204 (2026-09-07)
+
+```text
+:slug → 404 si no existe → splice → 204 sin body; segundo DELETE → 404
+```
+
+Lección: `204 No Content` = "borrado, nada más que decir"; el front ya sabe qué borró. Verificado: `204` vacío + `404` repetido, `tsc` limpio. CRUD Nitro completo: GET, GET :slug, POST, PATCH, DELETE.
+
 ## Seguridad: `stack` en dev vs. producción (2026-09-07)
 
 En `nitro dev` el `404` incluía `stack` con rutas internas (`/home/.../node_modules/...`). El alumno detectó el riesgo: expone dónde vive el proyecto. Verificado con `nitro build` + producción: el body queda solo en `{ error, status, message }`, sin `stack`. Regla: log detallado en el servidor, mensaje mínimo al cliente.
