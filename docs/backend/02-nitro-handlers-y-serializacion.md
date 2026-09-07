@@ -51,6 +51,10 @@ getRouterParam(event, "slug") → find por slug → 200 + producto | 400 sin slu
 
 Prueba real: `GET /api/products/wireless-mouse` → `200` + producto; `GET /api/products/no-existe` → `404` + mensaje. `tsc --noEmit` sin errores.
 
+## Contrato: recurso directo, sin envoltorio (2026-09-07)
+
+Se descartó `{ ok, data }`: `ok` duplicaba al status HTTP y `{ data }` no aporta seguridad (convención, no defensa). Contrato final: `GET /api/products` → array; `GET /api/products/:slug` → objeto; errores vía status + mensaje. Verificado: `200` + producto pelado, `404` ante slug inexistente.
+
 ## Seguridad: `stack` en dev vs. producción (2026-09-07)
 
 En `nitro dev` el `404` incluía `stack` con rutas internas (`/home/.../node_modules/...`). El alumno detectó el riesgo: expone dónde vive el proyecto. Verificado con `nitro build` + producción: el body queda solo en `{ error, status, message }`, sin `stack`. Regla: log detallado en el servidor, mensaje mínimo al cliente.

@@ -23,8 +23,5 @@ export default defineHandler((event) => {
     });
   }
 
-  return {
-    ok: true,
-    data: product,
-  };
+  return product;
 });
