@@ -213,3 +213,7 @@ El alumno construyó por razonamiento: `SELECT id, name, price, quantity, slug F
 ## CHECK enforced + secuencia sin hueco (2026-09-07)
 
 `INSERT quantity -3` → `ERROR violates check constraint products_quantity_check`, fila rechazada. `count(*)` = 4. Un INSERT válido posterior recibió `id 5` (`RETURNING id`), sin hueco de secuencia en este caso. Fila de prueba eliminada para dejar el seed limpio.
+
+## WHERE como freno de mano (2026-09-07)
+
+Sin `WHERE`, `UPDATE`/`DELETE` tocan toda la tabla sin confirmación. Hábitos: 1) espejo — probar el filtro con `SELECT` antes; 2) red — envolver en `BEGIN`/`ROLLBACK` y confirmar con el contador de filas antes de `COMMIT`. Verificado: `UPDATE ... WHERE slug` → `UPDATE 1`, quantity 12→11.
