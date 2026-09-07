@@ -3,10 +3,14 @@ import { readBody } from "nitro/h3";
 import { HTTPError } from "nitro";
 import { pool } from "#server/utils/db.ts";
 import { toProduct } from "#server/utils/products.ts";
+import { generateSlug } from "#server/utils/slug.ts";
 import { ProductInput } from "../../../types/products";
 
+// Omitimos el slug del input del body ya que se generará de forma automática
+type CreateProductInput = Omit<ProductInput, "slug">;
+
 export default defineHandler(async (event) => {
-  const body = await readBody<ProductInput>(event);
+  const body = await readBody<CreateProductInput>(event);
 
   if (!body) {
     throw new HTTPError({
@@ -16,11 +20,11 @@ export default defineHandler(async (event) => {
     });
   }
 
-  const { name, price, quantity, slug } = body;
+  const { name, price, quantity } = body;
 
   if (!name || typeof name !== "string" || name.trim() === "") {
     throw new HTTPError({
-      status: 400, // Bad Request
+      status: 400,
       statusText: "Bad Request",
       message: "El campo 'name' es requerido y debe ser un texto válido.",
     });
@@ -28,27 +32,25 @@ export default defineHandler(async (event) => {
 
   if (price === undefined || typeof price !== "number" || price < 0) {
     throw new HTTPError({
-      status: 400, // Bad Request
+      status: 400,
       statusText: "Bad Request",
-      message: "El campo 'price' es requerido y debe ser un texto válido.",
+      message:
+        "El campo 'price' es requerido y debe ser un número válido igual o mayor a 0.",
     });
   }
 
   if (quantity === undefined || typeof quantity !== "number" || quantity < 0) {
     throw new HTTPError({
-      status: 400, // Bad Request
+      status: 400,
       statusText: "Bad Request",
-      message: "El campo 'quantity' es requerido y debe ser un texto válido.",
+      message:
+        "El campo 'quantity' es requerido y debe ser un número válido igual o mayor a 0.",
     });
   }
 
-  if (!slug || typeof slug !== "string" || slug.trim() === "") {
-    throw new HTTPError({
-      status: 400, // Bad Request
-      statusText: "Bad Request",
-      message: "El campo 'slug' es requerido y debe ser un texto válido.",
-    });
-  }
+  // 1. Generación automática del slug: uuidId6-nombre-limpio.
+  // El cliente nunca manda el slug; nace en el servidor.
+  const generatedSlug = generateSlug(name);
 
   // 2. Intento de inserción seguro en la base de datos
   try {
@@ -56,7 +58,7 @@ export default defineHandler(async (event) => {
       `INSERT INTO products (name, price, quantity, slug) 
        VALUES ($1, $2, $3, $4) 
        RETURNING *;`,
-      [name, price, quantity, slug],
+      [name, price, quantity, generatedSlug],
     );
 
     const newProduct = toProduct(result.rows[0]);
@@ -64,12 +66,11 @@ export default defineHandler(async (event) => {
     event.res.status = 201;
     return newProduct;
   } catch (error) {
-    // error es unknown: preguntamos antes de tocar.
     if (isDbError(error) && error.code === "23505") {
       throw new HTTPError({
         status: 409,
         statusText: "Conflict",
-        message: `El slug '${slug}' ya está siendo utilizado por otro producto.`,
+        message: `El slug generado automáticamente '${generatedSlug}' ya existe en el sistema.`,
       });
     }
 
