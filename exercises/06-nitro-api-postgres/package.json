@@ -1,0 +1,22 @@
+{
+  "name": "06-nitro-api-postgres",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nitro build",
+    "dev": "nitro dev",
+    "preview": "nitro preview"
+  },
+  "imports": {
+    "#*": "./*"
+  },
+  "dependencies": {
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/pg": "latest",
+    "nitro": "latest",
+    "typescript": "latest"
+  }
+}
