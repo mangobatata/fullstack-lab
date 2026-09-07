@@ -18,6 +18,27 @@ function toProduct(row: ProductRow): Product {
 }
 
 /**
+ * 0. POST /api/products
+ * Crea un producto. El id lo genera la secuencia (SERIAL).
+ */
+export async function createProduct(
+  input: Omit<Product, "id">,
+): Promise<Product> {
+  const queryText = `
+    INSERT INTO products (name, price, quantity, slug)
+    VALUES ($1, $2, $3, $4)
+    RETURNING id, name, price, quantity, slug;
+  `;
+  const result = await pool.query<ProductRow>(queryText, [
+    input.name,
+    input.price,
+    input.quantity,
+    input.slug,
+  ]);
+  return toProduct(result.rows[0]);
+}
+
+/**
  * 1. GET /api/products
  * Devuelve todos los productos ordenados por ID.
  */
