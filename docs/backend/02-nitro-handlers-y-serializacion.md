@@ -51,5 +51,8 @@ getRouterParam(event, "slug") → find por slug → 200 + producto | 400 sin slu
 
 Prueba real: `GET /api/products/wireless-mouse` → `200` + producto; `GET /api/products/no-existe` → `404` + mensaje. `tsc --noEmit` sin errores.
 
+## Seguridad: `stack` en dev vs. producción (2026-09-07)
+
+En `nitro dev` el `404` incluía `stack` con rutas internas (`/home/.../node_modules/...`). El alumno detectó el riesgo: expone dónde vive el proyecto. Verificado con `nitro build` + producción: el body queda solo en `{ error, status, message }`, sin `stack`. Regla: log detallado en el servidor, mensaje mínimo al cliente.
 ## Bitácora de Errores Reales
 Sin errores del alumno en esta sesión. Hipótesis inicial ("¿lo armo como JSON?") corregida por razonamiento a "doble JSON" antes de implementar.

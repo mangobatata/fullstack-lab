@@ -8,6 +8,7 @@ export default defineHandler((event) => {
   if (!slug) {
     throw new HTTPError({
       status: 400,
+      statusText: "Bad Request",
       message: "El parámetro slug es requerido.",
     });
   }
@@ -17,12 +18,13 @@ export default defineHandler((event) => {
   if (!product) {
     throw new HTTPError({
       status: 404,
+      statusText: "Not Found",
       message: `El producto con el slug "${slug}" no existe.`,
     });
   }
 
   return {
     ok: true,
-    product,
+    data: product,
   };
 });
