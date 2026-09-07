@@ -1,6 +1,6 @@
 import { defineHandler } from "nitro";
-import { pool } from "../../utils/db";
-import { toProducts } from "../../utils/products";
+import { pool } from "#server/utils/db.ts";
+import { toProducts } from "#server/utils/products.ts";
 
 export default defineHandler(async () => {
   const result = await pool.query(

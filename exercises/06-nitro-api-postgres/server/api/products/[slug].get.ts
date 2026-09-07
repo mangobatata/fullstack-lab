@@ -1,8 +1,8 @@
 import { defineHandler } from "nitro";
 import { getRouterParam } from "nitro/h3";
 import { HTTPError } from "nitro";
-import { pool } from "../../utils/db";
-import { toProduct } from "../../utils/products.ts";
+import { pool } from "#server/utils/db.ts";
+import { toProduct } from "#server/utils/products.ts";
 
 export default defineHandler(async (event) => {
   const slug = getRouterParam(event, "slug");
