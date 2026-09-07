@@ -217,3 +217,7 @@ El alumno construyó por razonamiento: `SELECT id, name, price, quantity, slug F
 ## WHERE como freno de mano (2026-09-07)
 
 Sin `WHERE`, `UPDATE`/`DELETE` tocan toda la tabla sin confirmación. Hábitos: 1) espejo — probar el filtro con `SELECT` antes; 2) red — envolver en `BEGIN`/`ROLLBACK` y confirmar con el contador de filas antes de `COMMIT`. Verificado: `UPDATE ... WHERE slug` → `UPDATE 1`, quantity 12→11.
+
+## SQL injection demostrado (2026-09-07)
+
+Concatenado `WHERE slug = '' OR '1'='1'` → `count 4` (toda la tabla). Con `PREPARE q(text) ... WHERE slug = $1` + `EXECUTE` del mismo input → `count 0`. Regla: jamás interpolar input en SQL; siempre placeholders `$1, $2` con array de valores.
