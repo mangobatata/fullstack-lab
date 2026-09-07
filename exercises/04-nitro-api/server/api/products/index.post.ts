@@ -61,7 +61,7 @@ export default defineHandler(async (event) => {
   }
 
   const productToInsert = {
-    id: products.length + 1,
+    id: crypto.randomUUID(),
     name,
     price,
     quantity,
