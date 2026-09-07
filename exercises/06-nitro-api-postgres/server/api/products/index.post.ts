@@ -63,9 +63,9 @@ export default defineHandler(async (event) => {
 
     event.res.status = 201;
     return newProduct;
-  } catch (error: any) {
-    // Código de error nativo de Postgres para violaciones de restricciones UNIQUE (23505)
-    if (error.code === "23505") {
+  } catch (error) {
+    // error es unknown: preguntamos antes de tocar.
+    if (isDbError(error) && error.code === "23505") {
       throw new HTTPError({
         status: 409,
         statusText: "Conflict",
@@ -76,3 +76,7 @@ export default defineHandler(async (event) => {
     throw error;
   }
 });
+
+function isDbError(error: unknown): error is { code: string } {
+  return typeof error === "object" && error !== null && "code" in error;
+}
