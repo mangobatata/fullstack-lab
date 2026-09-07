@@ -209,3 +209,7 @@ Verificado: `SELECT 0.1::float + 0.2::float;` → `0.30000000000000004`. Definic
 ## SELECT por slug (2026-09-07)
 
 El alumno construyó por razonamiento: `SELECT id, name, price, quantity, slug FROM products WHERE slug = '...';`. Verificado: devuelve 1 fila (id 2). Equivale al `find` del GET :slug.
+
+## CHECK enforced + secuencia sin hueco (2026-09-07)
+
+`INSERT quantity -3` → `ERROR violates check constraint products_quantity_check`, fila rechazada. `count(*)` = 4. Un INSERT válido posterior recibió `id 5` (`RETURNING id`), sin hueco de secuencia en este caso. Fila de prueba eliminada para dejar el seed limpio.
