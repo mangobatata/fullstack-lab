@@ -1,0 +1,23 @@
+services:
+  db:
+    # Usamos la etiqueta oficial limpia para Alpine
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      # usar las variables correctas dinámicamente
+      test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - '127.0.0.1:5433:5432'
+    volumes:
+      # Ruta interna de datos actualizada para Postgres 18
+      - postgres_data:/var/lib/postgresql
+
+volumes:
+  postgres_data:

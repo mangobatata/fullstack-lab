@@ -1,83 +1,28 @@
-import { defineHandler } from "nitro";
+import { defineHandler, HTTPError } from "nitro";
 import { readBody } from "nitro/h3";
-import { HTTPError } from "nitro";
 import { pool } from "#server/utils/db.ts";
-import { toProduct } from "#server/utils/products.ts";
+import { toProduct, type ProductRow } from "#server/utils/products.ts";
 import { generateSlug } from "#server/utils/slug.ts";
-import { ProductInput } from "../../../types/products";
-
-// Omitimos el slug del input del body ya que se generará de forma automática
-type CreateProductInput = Omit<ProductInput, "slug">;
+import { validateProduct } from "#server/utils/validation.ts";
 
 export default defineHandler(async (event) => {
-  const body = await readBody<CreateProductInput>(event);
-
-  if (!body) {
-    throw new HTTPError({
-      status: 400,
-      statusText: "Bad Request",
-      message: "El body es requerido.",
-    });
-  }
-
-  const { name, price, quantity } = body;
-
-  if (!name || typeof name !== "string" || name.trim() === "") {
-    throw new HTTPError({
-      status: 400,
-      statusText: "Bad Request",
-      message: "El campo 'name' es requerido y debe ser un texto válido.",
-    });
-  }
-
-  if (price === undefined || typeof price !== "number" || price < 0) {
-    throw new HTTPError({
-      status: 400,
-      statusText: "Bad Request",
-      message:
-        "El campo 'price' es requerido y debe ser un número válido igual o mayor a 0.",
-    });
-  }
-
-  if (quantity === undefined || typeof quantity !== "number" || quantity < 0) {
-    throw new HTTPError({
-      status: 400,
-      statusText: "Bad Request",
-      message:
-        "El campo 'quantity' es requerido y debe ser un número válido igual o mayor a 0.",
-    });
-  }
-
-  // 1. Generación automática del slug: uuidId6-nombre-limpio.
-  // El cliente nunca manda el slug; nace en el servidor.
-  const generatedSlug = generateSlug(name);
-
-  // 2. Intento de inserción seguro en la base de datos
+  // Validamos antes de usar una conexión; el genérico unknown no confía en el cliente.
+  const { name, price, quantity } = validateProduct(await readBody<unknown>(event), false);
   try {
-    const result = await pool.query(
-      `INSERT INTO products (name, price, quantity, slug) 
-       VALUES ($1, $2, $3, $4) 
-       RETURNING *;`,
-      [name, price, quantity, generatedSlug],
+    // Los valores viajan separados del SQL. RETURNING evita otra consulta tras insertar.
+    const result = await pool.query<ProductRow>(
+      `INSERT INTO products (name, price, quantity, slug)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, name, price, quantity, slug;`,
+      [name, price, quantity, generateSlug(name)],
     );
-
-    const newProduct = toProduct(result.rows[0]);
-
     event.res.status = 201;
-    return newProduct;
+    return toProduct(result.rows[0]);
   } catch (error) {
-    if (isDbError(error) && error.code === "23505") {
-      throw new HTTPError({
-        status: 409,
-        statusText: "Conflict",
-        message: `El slug generado automáticamente '${generatedSlug}' ya existe en el sistema.`,
-      });
+    // Una colisión no sobrescribe el producto existente. Otros errores siguen como 500.
+    if (typeof error === "object" && error !== null && "code" in error && error.code === "23505") {
+      throw new HTTPError({ status: 409, message: "El identificador generado ya existe. Intenta crear el producto de nuevo." });
     }
-
     throw error;
   }
 });
-
-function isDbError(error: unknown): error is { code: string } {
-  return typeof error === "object" && error !== null && "code" in error;
-}
