@@ -205,3 +205,7 @@ Verificado en vivo: `SELECT btrim('   ') <> '';` → `f`. Definición acordada: 
 ## Columna price exacta (2026-09-07)
 
 Verificado: `SELECT 0.1::float + 0.2::float;` → `0.30000000000000004`. Definición: `price NUMERIC(10,2) NOT NULL CHECK (price >= 0)`. El alumno corrigió primero un CHECK invertido (`price < 0` rechazaba precios válidos).
+
+## SELECT por slug (2026-09-07)
+
+El alumno construyó por razonamiento: `SELECT id, name, price, quantity, slug FROM products WHERE slug = '...';`. Verificado: devuelve 1 fila (id 2). Equivale al `find` del GET :slug.
