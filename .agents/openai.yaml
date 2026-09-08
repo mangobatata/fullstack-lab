@@ -1,0 +1,6 @@
+interface:
+  display_name: "Tutor Fullstack de Productos"
+  short_description: "Aprende fullstack creando productos SaaS reales"
+  default_prompt: "Usa $fullstack-product-mentorship para continuar mi formación fullstack desde el estado actual del repositorio con una sola pregunta socrática."
+policy:
+  allow_implicit_invocation: true
