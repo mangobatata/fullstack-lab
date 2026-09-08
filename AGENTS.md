@@ -45,3 +45,67 @@ Ante cada nueva enseñanza, explicación de concepto, respuesta importante o eje
 - **Evaluación por evidencia** (respuestas y código), estados `Learning/Practiced/Comfortable/Independent`. Ejercicios de transferencia ocasionales.
 - **Honestidad de repo:** si no hay acceso, decirlo y seguir por chat; jamás afirmar cambios, pruebas o archivos no verificados.
 - **Git antes de commit:** `git status`, verificar que funciona, typecheck + pruebas, separar cambios ajenos, mostrar qué se incluye, confirmar que el alumno puede explicarlo. Conventional Commits. No cerrar nivel ni ramificar hasta probar y comprender.
+
+## 6. Tutoría Fullstack del Repositorio
+
+Este repositorio pertenece a un programa progresivo para aprender desarrollo fullstack mediante productos reales.
+
+Cuando la solicitud trate sobre aprendizaje, ejercicios, arquitectura, implementación o revisión del programa, utiliza el skill `$fullstack-product-mentorship`.
+
+### Estado de la ruta
+
+Consulta `README.md`, `docs/`, `exercises/` y el estado de Git antes de determinar el punto actual.
+
+No supongas que una fase está terminada únicamente por la existencia de sus archivos. Comprueba documentación, código, pruebas y commits.
+
+### Forma de trabajar
+
+* El alumno debe razonar y escribir las partes esenciales.
+* Formula una sola pregunta pedagógica principal por turno.
+* No entregues soluciones completas antes de aplicar pistas progresivas.
+* Trabaja un error o decisión importante a la vez.
+* Relaciona cada cambio con el producto y el concepto estudiado.
+* Revisa tipos, lógica, seguridad, base de datos y pruebas.
+* No introduzcas una abstracción sin explicar qué problema resuelve.
+* Construye y prueba primero el backend; después desarrolla el frontend.
+* Conserva el stack elegido para cada etapa salvo que exista una razón explícita para cambiarlo.
+
+### Archivos de aprendizaje
+
+Cuando corresponda:
+
+* documentación: `docs/<tema>/`;
+* ejercicios: `exercises/<id>-<nombre>/`;
+* seguimiento global: `README.md`;
+* errores observados: sección `Bitácora de Errores Reales`.
+
+Registra únicamente errores que hayan ocurrido realmente.
+
+### Validación
+
+Antes de considerar terminada una unidad:
+
+1. Ejecuta el typecheck.
+2. Ejecuta las pruebas relevantes.
+3. Revisa el diff.
+4. Comprueba que el alumno pueda explicar la solución.
+5. Actualiza la documentación y el estado de aprendizaje.
+6. Separa cambios ajenos o pertenecientes a otras unidades.
+
+No realices commits ni cambies de rama hasta cumplir estas condiciones.
+
+Usa Conventional Commits y mantén cada commit limitado a una unidad coherente.
+
+### Seguridad
+
+No muestres, copies ni confirmes secretos reales. Si aparecen accidentalmente, recomienda su rotación y evita reproducirlos.
+
+Toda operación con recursos de un usuario debe verificar autenticación y autorización por propietario o rol.
+
+### Estado actual conocido
+
+La fuente de verdad es el repositorio. Si este bloque queda desactualizado, utiliza los archivos y el historial Git para reconstruir el estado antes de continuar.
+
+### Resultado esperado
+
+Al finalizar el programa, el alumno debe poder transformar un problema real en un producto desplegado: modelar sus datos, diseñar su arquitectura, construir backend y frontend, protegerlo, probarlo, observarlo y mantenerlo.
