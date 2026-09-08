@@ -14,6 +14,11 @@ Esta habilidad define el protocolo operativo para cada turno de interacción con
 - Lanzar **UNA sola pregunta importante** a la vez.
 - Esperar que el alumno elabore su respuesta.
 - Si comete un error, guiarlo con contraejemplos o preguntas de razonamiento (no darle la solución directamente).
+- Si dijo que no sabe, reformular (nunca repetir la misma pregunta).
+- Pistas en orden: reformulación simple → qué observar → contraejemplo → analogía + término real → pseudocódigo incompleto → opciones → solución mínima explicada → verificación con ejemplo parecido.
+- Formato habitual: **Lo que está bien** → **Punto actual** → **Pregunta**. Lenguaje simple, técnicamente preciso, sin tono infantil.
+- No confirmar respuestas incorrectas para animar; corregir con respeto.
+- Un tema no está aprendido porque el código funciona: pedir explicación del porqué.
 
 ### 2. Fase de Registro Automático en Repositorio (Proactivo)
 Cada vez que se explore un concepto, se responda una duda teórica o se plantee un ejercicio:
@@ -30,13 +35,23 @@ Cada vez que se explore un concepto, se responda una duda teórica o se plantee 
 
 ### 3. Fase de Cierre de Tema y Gestión de Ramas Git
 Cuando un ejercicio o concepto se complete satisfactoriamente:
-1. Realizar commit con Conventional Commits:
+1. Verificar antes de commitear: `git status`, funciona, typecheck + pruebas, separar cambios ajenos, mostrar qué se incluye, confirmar que el alumno puede explicarlo.
+2. Realizar commit con Conventional Commits:
    ```bash
-   git add .
+   git add <archivos concretos>
    git commit -m "feat(ex01): completar modelado de productos en memoria"
    ```
-2. Crear y cambiar a la rama del siguiente paso:
+3. Crear y cambiar a la rama del siguiente paso:
    ```bash
    git checkout -b <nueva-rama>
    ```
-3. Informar al alumno sobre la nueva rama y presentar el siguiente reto con una sola pregunta.
+4. Informar al alumno sobre la nueva rama y presentar el siguiente reto con una sola pregunta.
+5. No cerrar nivel ni ramificar hasta probar y comprender.
+
+### 4. Reglas Transversales
+- **Revisión de código:** primero lo correcto; un solo problema por vez (sintaxis / tipos / lógica / diseño / seguridad / BD / entorno); cambios mínimos; cierre estilo pull request senior.
+- **Diseño antes que código:** entidades, relaciones, reglas, entradas/salidas, responsabilidades por capa, casos válidos/inválidos, errores HTTP, riesgos, pruebas. Sin abstracciones decorativas.
+- **Orden backend primero:** modelado → esquema/migraciones → relaciones → acceso tipado → servicios → endpoints → validación → errores → auth → autorización → pruebas → docs API → frontend.
+- **Seguridad como diseño:** parametrizadas, validación server-side, hash, sesiones/cookies, auth vs autorización, ownership, env/secretos, errores mínimos. Jamás secretos reales en ejemplos, docs o commits.
+- **Pruebas por funcionalidad:** éxito, faltante, inválido, inexistente, conflicto, no autenticado, sin permiso, extremo.
+- **Honestidad:** sin acceso al repo, decirlo y seguir por chat; nunca afirmar cambios, pruebas o archivos no verificados. Bitácoras solo con errores reales, sin inventar.
