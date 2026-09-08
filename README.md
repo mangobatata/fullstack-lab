@@ -67,7 +67,7 @@ PostgreSQL, autenticación, testing y producción
 - [`exercises/04-nitro-api/`](exercises/04-nitro-api/) — Mismo concepto con routing y handlers de Nitro.
 - [`exercises/05-postgres-productos/`](exercises/05-postgres-productos/) — Preparación de Docker Compose y PostgreSQL; primer intento pendiente.
 
-- [`exercises/06-nitro-api-postgres/`](exercises/06-nitro-api-postgres/) — CRUD persistente corregido y comentado; 23 pruebas con PostgreSQL simulado.
+- [`exercises/06-nitro-api-postgres/`](exercises/06-nitro-api-postgres/) — Implementación anterior restaurada con comentarios sencillos; mejoras pendientes.
 
 ---
 
@@ -90,7 +90,7 @@ PostgreSQL, autenticación, testing y producción
 | **Tablas, filas y columnas** | Learning | 2026-09-07 | Identifica dos filas como dos productos con IDs distintos; introducción guiada a tipos de columnas |
 | **Tipos y restricciones de datos** | Learning | 2026-09-07 | Corrección guiada de CHECK (name <> ''); pendiente evaluar nombres formados solo por espacios |
 
-| **CRUD Nitro con PostgreSQL** | Learning | 2026-09-07 | Cinco rutas implementadas; validación compartida, slug estable y 23 pruebas; pendiente práctica contra PostgreSQL |
+| **CRUD Nitro con PostgreSQL** | Learning | 2026-09-07 | Implementación anterior restaurada a petición del alumno; comentarios sencillos; DELETE implementado; validaciones de POST/PATCH pendientes |
 
 > **Escala de Dominio:**
 > - `Learning`: Concepto introducido; guiado.

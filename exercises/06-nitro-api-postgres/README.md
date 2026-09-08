@@ -25,21 +25,17 @@ Postgres debe estar corriendo (ver `../05-postgres-productos/docker-compose.yml`
 - [x] `PATCH /api/products/:slug` → `UPDATE ... WHERE ... RETURNING`, parcial
 - [x] `DELETE /api/products/:slug` → `204`, `404` si no existe
 
-## Correcciones implementadas — 2026-09-07
+## Implementación restaurada — 2026-09-08
 
-Estado de aprendizaje: `Learning`. Las cinco rutas están implementadas.
+Estado: `Learning`. Recuperamos la implementación anterior con comentarios sencillos. Después se implementó DELETE a petición del alumno: lee el slug, ejecuta un borrado parametrizado y usa rowCount para responder 404 o 204 sin cuerpo. La validación compartida y las pruebas añadidas se retiraron del ejercicio.
 
-- POST exige name, price y quantity; PATCH exige al menos uno. Ambos rechazan campos desconocidos, arrays y valores que no sean objetos.
-- name se guarda sin espacios exteriores; quantity admite enteros de 0 a 2147483647.
-- price admite valores finitos de 0 a 99999999.99 con hasta dos decimales; los decimales adicionales se rechazan, no se redondean.
-- El slug usa un UUID completo, se genera solo al crear y se conserva incluso al renombrar. Los slugs existentes siguen siendo válidos.
-- DELETE devuelve 204 sin cuerpo, o 404 si no existe.
-- Los comentarios en handlers, validación, tipos y utilidades explican el flujo.
+Las limitaciones detectadas en la revisión vuelven a quedar pendientes: PATCH sin campos reconocidos, límites numéricos y cambio de slug al enviar name. Se trabajarán de uno en uno.
 
-Verificación: `bun run typecheck`, `bun run test` y `bun run build`.
-Las pruebas usan HTTP en proceso y PostgreSQL simulado; no verifican una instancia real.
+Verificación: `bun run typecheck`.
 
-Registro: [revisión de persistencia](../../docs/backend/04-nitro-postgres-revision.md).
+```text
+petición --> handler --> SQL --> filas --> producto --> JSON
+```
 
 ## Pregunta orientadora
 

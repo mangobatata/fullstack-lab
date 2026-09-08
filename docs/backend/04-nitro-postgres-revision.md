@@ -78,3 +78,38 @@ Verificación: bun run typecheck pasa; bun test pasa con 23 pruebas y 54 asercio
 ### Bitácora de Errores Reales — implementación
 
 No hubo una nueva respuesta conceptual del alumno; no se agregan errores atribuidos a él. Los hallazgos originales se conservan como historial y quedan corregidos según lo descrito arriba.
+
+
+## Restauración solicitada — 2026-09-08
+
+Objetivo: volver a la implementación anterior porque el alumno considera las correcciones demasiado complejas para su nivel. Se restauraron los handlers y el generador de slug anteriores con comentarios sencillos, además del contrato ProductInput original. Se retiraron del ejercicio la validación compartida y las pruebas añadidas; se conserva el script typecheck. DELETE vuelve a quedar pendiente y los hallazgos iniciales vuelven a estar abiertos.
+
+```text
+petición --> handler con validación local --> SQL --> filas --> JSON
+```
+
+Verificación: bun run typecheck pasa. No se hicieron consultas contra PostgreSQL. Estado: Learning.
+
+### Bitácora de Errores Reales
+
+El alumno señaló que la implementación del asistente era difícil para un principiante. Se corrige el enfoque de enseñanza recuperando su estructura previa y explicándola con comentarios. No se atribuye al alumno ningún error conceptual nuevo.
+
+
+## DELETE implementado — 2026-09-08
+
+Objetivo: completar el borrado manteniendo el estilo sencillo de los handlers anteriores. A petición explícita del alumno se implementa la ruta con comentarios y se preparan todos los cambios pendientes para commit y push.
+
+El handler lee el slug, comprueba que no esté vacío y ejecuta DELETE con WHERE slug = $1. El valor se envía separado del SQL. rowCount permite saber si se borró una fila sin hacer un SELECT previo.
+
+```text
+DELETE /api/products/:slug --> validar slug --> DELETE con WHERE
+                                                   |
+                                     rowCount = 0 --> 404
+                                     rowCount = 1 --> 204 sin cuerpo
+```
+
+Verificación: bun run typecheck y bun run build pasan. Se comprueban HTTP 204 sin cuerpo, parámetros SQL y HTTP 404 con PostgreSQL simulado mediante un script temporal; no se borraron datos reales. Estado de aprendizaje: Learning. Las limitaciones de POST/PATCH documentadas siguen pendientes.
+
+### Bitácora de Errores Reales
+
+No hubo un nuevo intento conceptual del alumno; no se registran errores suyos en este turno.

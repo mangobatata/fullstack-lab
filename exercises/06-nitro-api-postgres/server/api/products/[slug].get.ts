@@ -2,15 +2,23 @@ import { defineHandler } from "nitro";
 import { getRouterParam } from "nitro/h3";
 import { HTTPError } from "nitro";
 import { pool } from "#server/utils/db.ts";
-import { toProduct, type ProductRow } from "#server/utils/products.ts";
+import { toProduct } from "#server/utils/products.ts";
 
-import { validateSlug } from "#server/utils/validation.ts";
-
-// Busca por el identificador público; una colección vacía aquí significa 404.
+// Nitro llama a esta función cuando llega una petición. event contiene sus datos.
 export default defineHandler(async (event) => {
-  const slug = validateSlug(getRouterParam(event, "slug"));
+  // Obtenemos el identificador que viene en la URL.
+  const slug = getRouterParam(event, "slug");
 
-  const product = await pool.query<ProductRow>(
+  if (!slug) {
+    throw new HTTPError({
+      status: 400,
+      statusText: "Bad Request",
+      message: "El parámetro slug es requerido.",
+    });
+  }
+
+  // $1 recibe el slug del array. SELECT lee los datos de PostgreSQL.
+  const product = await pool.query(
     "SELECT id, name, price, quantity, slug FROM products WHERE slug = $1",
     [slug],
   );
@@ -23,5 +31,6 @@ export default defineHandler(async (event) => {
     });
   }
 
+  // rows contiene las filas. [0] obtiene la primera; toProduct convierte el precio.
   return toProduct(product.rows[0]);
 });

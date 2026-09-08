@@ -6,8 +6,7 @@
     "typecheck": "tsc --noEmit",
     "build": "nitro build",
     "dev": "nitro dev",
-    "preview": "nitro preview",
-    "test": "bun test"
+    "preview": "nitro preview"
   },
   "imports": {
     "#*": "./*"

@@ -1,14 +1,18 @@
 import { v4 as uuidv4 } from "uuid";
 
-// Conservamos letras Unicode; descomponemos acentos y eliminamos sus marcas.
+// Limpiamos espacios y símbolos y sustituimos espacios por guiones.
 export function sanitizeName(name: string): string {
-  return name.normalize("NFKD").replace(/\p{M}/gu, "")
-    .trim().toLowerCase().replace(/[^\p{L}\p{N}\s-]/gu, "")
-    .replace(/[\s-]+/g, "-").replace(/^-+|-+$/g, "") || "producto";
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
 }
 
-// UUID completo reduce colisiones; UNIQUE en PostgreSQL sigue siendo la garantía.
-// Se genera al crear: renombrar un producto conserva su URL pública.
+// Apodo: seis caracteres del UUID y el nombre limpio.
+// El prefijo puede repetirse: UNIQUE en PostgreSQL detecta duplicados.
+// El cliente nunca manda el slug; nace acá.
 export function generateSlug(name: string): string {
-  return `${uuidv4()}-${sanitizeName(name)}`;
+  return `${uuidv4().slice(0, 6)}-${sanitizeName(name)}`;
 }
