@@ -113,3 +113,29 @@ Verificación: bun run typecheck y bun run build pasan. Se comprueban HTTP 204 s
 ### Bitácora de Errores Reales
 
 No hubo un nuevo intento conceptual del alumno; no se registran errores suyos en este turno.
+
+
+## Siguiente práctica: persistencia real — 2026-09-08
+
+Objetivo: comprobar la API contra PostgreSQL real antes de avanzar de tema. Estado: Learning. Se propone crear un producto de prueba, guardar su slug, reiniciar solo Nitro y consultarlo por GET; después practicar PATCH y DELETE sobre ese producto. La comprobación previa de DELETE usó una base simulada, por lo que todavía falta esta evidencia.
+
+```text
+POST --> PostgreSQL --> reiniciar Nitro --> GET por el mismo slug
+```
+
+Pregunta orientadora: si creamos un producto y reiniciamos solo Nitro, ¿esperás que GET por su slug lo encuentre y por qué?
+
+### Bitácora de Errores Reales
+
+No hay una nueva respuesta conceptual del alumno. Práctica propuesta, todavía no ejecutada.
+
+
+### Peticiones curl preparadas — 2026-09-08
+
+Objetivo: practicar creación, actualización y borrado con datos de prueba. El alumno pidió los curl para crear diez productos, actualizar dos y eliminar dos. Se preparó exercises/06-nitro-api-postgres/scripts/probar-productos.sh: usa curl y Bun para extraer los slugs generados por POST. PATCH modifica precio y cantidad de los dos primeros; DELETE elimina los dos últimos del lote. Cada ejecución crea un lote nuevo.
+
+```text
+10 POST --> guardar slugs --> 2 PATCH --> 2 DELETE --> GET listado
+```
+
+Sintaxis comprobada con bash -n. No se ejecutaron las peticiones ni se comprobó todavía PostgreSQL real. No hay nuevos errores conceptuales del alumno.
