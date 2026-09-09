@@ -99,3 +99,67 @@ copia anterior de la cookie en el servidor.
   y logout devuelve su valor vacío.
 
 Pregunta de revisión: ¿por qué cada caso de login crea su propio usuario?
+
+## Diseño de POST /api/projects — Learning
+
+Objetivo: crear proyectos cuyo propietario sea el usuario autenticado.
+El alumno identificó que el `userId` debe obtenerse de la sesión.
+El servidor utiliza `session.user.id` para asignar el propietario; un `userId`
+enviado en el body no debe decidir a quién pertenece el proyecto.
+
+```text
+Cookie -> validar sesión -> session.user.id -> propietario del proyecto
+Body   -> validar datos  -> datos del proyecto
+```
+
+El endpoint exige sesión válida (401 si falta), valida el body (400) y crea
+el proyecto con 201. El body solo admite `projectName`; el propietario se toma
+de la sesión. El nombre puede repetirse: el slug incorpora seis caracteres de un UUID y la base
+de datos exige su unicidad. Por decisión del alumno se conserva
+`const baseSlug = slugify(projectName);`, sin truncamiento ni valor alternativo.
+
+Verificación: `bun run test tests/integration` ejecuta autenticación y proyectos.
+Los tests de proyectos comprueban persistencia, propietario, ausencia de sesión,
+body inválido, intento de enviar `userId`, nombres repetidos y límites del slug.
+Pendiente: explicación del alumno antes de cerrar la unidad.
+
+### Bitácora de Errores Reales
+
+- El endpoint importaba `requireUserSession` desde `../utils/session`, pero ese
+  archivo no existe. Se eliminó el import: `nuxt-auth-utils` proporciona esta
+  función mediante autoimportación, como en `server/api/auth/me.get.ts`.
+- Se utilizaba `name` aunque la propiedad del esquema es `projectName`; luego
+  se asignó el objeto columna como valor. El insert requiere el texto validado
+  `projectName`; la selección utiliza `projectsTable.projectName`.
+- `uuidv4(6, 0)` no corresponde a la firma de la función. `uuidv4()` genera
+  el identificador completo sin argumentos.
+- `const [project] = ...values(project)` ocultaba la variable de entrada antes
+  de inicializarse. La fila devuelta ahora se llama `createdProject`.
+- Faltaba importar `getPostgresErrorCode` desde el helper existente.
+- La consulta de duplicados buscaba el slug base, pero se insertaba UUID + slug.
+  Se eliminó esa comprobación incoherente; la restricción UNIQUE protege el slug
+  definitivo y su conflicto se transforma en 409.
+- Al acortar el prefijo a seis caracteres se perdió el límite del sufijo y su
+  valor alternativo. Los tests detectaron un 500 para nombres de 255 caracteres
+  y un sufijo vacío para nombres no latinos. El alumno eligió conservar la
+  generación simple; ambos casos quedan pendientes. Estado de esta versión:
+  29 pruebas pasan y 2 fallan; la unidad no está cerrada.
+
+### Diagnóstico de login con 401
+
+Objetivo: distinguir validación del body de verificación de credenciales.
+
+```text
+Body inválido -> 400
+Body válido  -> buscar usuario -> ausente: 401
+                              -> presente: verificar hash -> no coincide: 401
+```
+
+En el caso reportado se consultó la base configurada para este ejercicio y
+no se encontró la cuenta indicada. No se guardaron credenciales en el registro.
+La petición reportada apuntaba al puerto 3001; aún debe confirmarse que esa
+instancia utiliza la misma base. Registrar la cuenta y hacer login debe ocurrir
+contra la misma instancia y base de datos.
+
+Bitácora de Errores Reales: se observó un login rechazado con 401 y una cuenta
+inexistente en la base consultada; no se verificó una contraseña incorrecta.
