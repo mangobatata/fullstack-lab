@@ -292,3 +292,265 @@ Antes de avanzar, el alumno debe poder:
 ## Adaptación
 
 Los nombres o dominios de los productos pueden cambiar si surge una idea mejor. Las capacidades pedagógicas y el aumento gradual de dificultad deben mantenerse.
+
+## Proyecto especializado — API de producción con JWT Bearer
+
+Construir un producto **API-first** preparado para producción. La API debe poder ser consumida por una aplicación Nuxt, clientes externos e integraciones, sin depender de las sesiones del Task Manager.
+
+Una posible temática es una plataforma headless de comercio, contenido o automatización. La temática puede cambiar, pero los objetivos técnicos de autenticación y seguridad deben mantenerse.
+
+### Objetivo pedagógico
+
+Aprender a diseñar, implementar, proteger, documentar, probar y desplegar una API profesional basada en access tokens JWT enviados mediante el esquema Bearer.
+
+No presentar JWT como "una sesión más moderna". Compararlo con las sesiones opacas aprendidas anteriormente y justificar sus ventajas, costes y riesgos.
+
+### Flujo principal
+
+```text
+Registro
+→ verificación de email
+→ login
+→ access token JWT de corta duración
+→ Authorization: Bearer <token>
+→ acceso a recursos protegidos
+→ expiración del access token
+→ refresh token
+→ rotación
+→ nuevo access token
+→ logout o revocación
+```
+
+### Registro y credenciales
+
+Implementar y enseñar:
+
+* registro;
+* normalización y unicidad del email;
+* hash seguro de contraseñas;
+* verificación de email mediante token de un solo uso;
+* expiración e invalidación del token;
+* reenvío controlado del email;
+* protección contra enumeración de cuentas;
+* login;
+* rate limiting;
+* registro seguro de intentos;
+* recuperación de contraseña;
+* invalidación de sesiones y refresh tokens después de restablecerla.
+
+La base de datos nunca debe guardar contraseñas originales ni tokens de recuperación en texto plano.
+
+### Access token JWT
+
+El access token debe:
+
+* enviarse mediante `Authorization: Bearer <token>`;
+* tener una vida corta;
+* contener la información mínima necesaria;
+* estar firmado;
+* no contener contraseñas, secretos ni información privada innecesaria;
+* validarse completamente en cada petición protegida.
+
+Enseñar y validar claims como:
+
+* `sub`: identificador del usuario;
+* `iss`: emisor;
+* `aud`: audiencia;
+* `iat`: fecha de emisión;
+* `exp`: expiración;
+* `nbf`, cuando corresponda;
+* `jti`, cuando se necesite identificar el token;
+* scopes o permisos limitados.
+
+El alumno debe comprender que un JWT firmado no está cifrado y que su payload puede leerse.
+
+### Firma y claves
+
+Enseñar progresivamente:
+
+1. firma simétrica y su modelo de confianza;
+2. firma asimétrica;
+3. clave privada para firmar;
+4. clave pública para verificar;
+5. identificación de claves mediante `kid`;
+6. rotación de claves;
+7. publicación de claves mediante JWKS cuando sea útil.
+
+La implementación debe permitir explícitamente solo los algoritmos esperados. Nunca debe confiar ciegamente en el algoritmo indicado por el token.
+
+### Refresh tokens
+
+Implementar refresh tokens separados de los access tokens.
+
+Los refresh tokens deben:
+
+* tener mayor duración que el access token;
+* permanecer confidenciales;
+* almacenarse de forma segura;
+* guardarse hasheados en la base de datos cuando el servidor necesite verificarlos;
+* asociarse con usuario, sesión o familia de tokens;
+* tener fecha de creación, expiración y revocación;
+* rotarse después de cada uso;
+* invalidar el token anterior;
+* detectar intentos de reutilización;
+* permitir cerrar una sesión concreta o todas las sesiones.
+
+Explicar por qué un refresh token robado es una credencial sensible y por qué la rotación requiere estado persistente.
+
+### Cliente web Nuxt
+
+Construir un cliente Nuxt para consumir la API.
+
+No guardar credenciales duraderas en `localStorage`.
+
+Explorar y comparar dos arquitecturas:
+
+#### Access token en memoria
+
+* access token mantenido temporalmente en memoria;
+* refresh token protegido mediante cookie `HttpOnly`, `Secure` y configuración apropiada de `SameSite`;
+* renovación controlada;
+* protección CSRF cuando la cookie participa en autenticación;
+* manejo de pestañas, recargas y expiración.
+
+#### Backend for Frontend
+
+* el navegador utiliza una cookie segura;
+* Nuxt actúa como Backend for Frontend;
+* el servidor Nuxt administra los tokens frente a la API;
+* los JWT no quedan expuestos al JavaScript del navegador.
+
+El tutor debe enseñar las dos opciones y hacer que el alumno justifique la elegida.
+
+### Autorización
+
+Después de autenticar al usuario, implementar:
+
+* propiedad de recursos;
+* roles;
+* permisos;
+* scopes;
+* separación entre autenticación y autorización;
+* respuestas `401` y `403` correctas;
+* protección de cada operación, no solamente de las rutas visibles;
+* prevención de acceso a objetos pertenecientes a otros usuarios.
+
+Nunca asumir que un JWT válido concede acceso automático a cualquier recurso.
+
+### Capacidades de una API profesional
+
+El proyecto debe cubrir progresivamente:
+
+* diseño consistente de endpoints;
+* versionado;
+* validación de entradas;
+* serialización segura de respuestas;
+* paginación;
+* filtros y ordenamiento;
+* búsqueda;
+* manejo uniforme de errores;
+* identificadores no predecibles cuando corresponda;
+* CORS;
+* rate limiting;
+* claves de idempotencia;
+* webhooks firmados;
+* reintentos;
+* transacciones;
+* concurrencia;
+* auditoría;
+* OpenAPI;
+* documentación para consumidores;
+* SDK pequeño en TypeScript;
+* health checks;
+* readiness checks.
+
+### Seguridad operativa
+
+Incluir:
+
+* secretos mediante variables de entorno;
+* claves fuera del repositorio;
+* rotación de secretos;
+* HTTPS en producción;
+* logs sin contraseñas ni tokens completos;
+* protección contra fuerza bruta;
+* límites de tamaño;
+* dependencias auditadas;
+* encabezados de seguridad;
+* política de expiración;
+* revocación por incidentes;
+* separación entre ambientes;
+* migraciones seguras.
+
+### Pruebas obligatorias
+
+Probar como mínimo:
+
+* login válido;
+* contraseña incorrecta;
+* usuario no verificado;
+* JWT ausente;
+* JWT malformado;
+* firma inválida;
+* algoritmo inesperado;
+* token expirado;
+* emisor incorrecto;
+* audiencia incorrecta;
+* scope insuficiente;
+* acceso a un recurso ajeno;
+* refresh válido;
+* refresh expirado;
+* rotación correcta;
+* reutilización de un refresh token anterior;
+* logout de una sesión;
+* logout de todas las sesiones;
+* cambio de contraseña;
+* rate limiting;
+* idempotencia;
+* webhooks con firma válida e inválida.
+
+### Observabilidad y producción
+
+Antes del cierre:
+
+* crear logs estructurados;
+* correlacionar peticiones mediante request ID;
+* registrar métricas de autenticación sin exponer credenciales;
+* medir latencia y errores;
+* configurar alertas básicas;
+* construir imagen Docker;
+* ejecutar CI;
+* desplegar API y cliente;
+* ejecutar migraciones;
+* probar el ambiente desplegado;
+* documentar rollback y recuperación.
+
+### Criterios de aprendizaje
+
+El proyecto solamente se considera terminado cuando el alumno puede explicar:
+
+* qué partes componen un JWT;
+* por qué firma no significa cifrado;
+* por qué el access token expira;
+* por qué existe el refresh token;
+* cómo funciona la rotación;
+* qué ocurre al reutilizar un refresh token;
+* cómo se revocan credenciales;
+* dónde almacena cada token el cliente web;
+* diferencia entre `401` y `403`;
+* diferencia entre roles y scopes;
+* diferencia entre JWT y sesión opaca;
+* cuándo JWT aporta valor y cuándo añade complejidad innecesaria.
+
+### Posición en el currículo
+
+Realizar este proyecto después de haber completado:
+
+1. autenticación con sesiones opacas;
+2. cookies seguras;
+3. autorización por propietario;
+4. verificación de email correo;
+5. recuperación de contraseña;
+6. pruebas de autenticación.
+
+No mezclar ambos mecanismos durante su primera implementación. El Task Manager enseña sesiones; esta API enseña JWT Bearer y autenticación basada en tokens.
