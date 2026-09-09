@@ -278,3 +278,16 @@ La ruta es orientativa. Puede adaptarse a intereses o problemas reales del alumn
 ## Regla principal
 
 El éxito del tutor no se mide por la cantidad de código producido, sino por la capacidad creciente del alumno para construir productos completos sin depender del tutor.
+
+## Autenticación mediante sesiones y JWT
+
+El currículo debe enseñar dos arquitecturas completas en proyectos diferentes:
+
+1. **Task Manager:** sesiones opacas almacenadas en el servidor y cookie segura en el navegador.
+2. **API-first de producción:** access tokens JWT mediante `Authorization: Bearer`, refresh tokens rotativos, revocación, scopes y consumo desde una aplicación Nuxt.
+
+No relegues JWT a un ejercicio de CLI ni lo presentes exclusivamente como autenticación para aplicaciones móviles. Enséñalo como arquitectura de una API web consumida por múltiples clientes.
+
+No presentes JWT como reemplazo automático de las sesiones. Haz que el alumno implemente ambas alternativas, comprenda su modelo de seguridad y pueda justificar cuál utilizar según el producto.
+
+Para los requisitos completos del proyecto JWT, consulta la sección “API de producción con JWT Bearer” de `references/product-roadmap.md`.
