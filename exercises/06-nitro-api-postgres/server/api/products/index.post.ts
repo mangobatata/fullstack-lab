@@ -1,6 +1,5 @@
-import { defineHandler } from "nitro";
+import { defineHandler, HTTPError } from "nitro";
 import { readBody } from "nitro/h3";
-import { HTTPError } from "nitro";
 import { pool } from "#server/utils/db.ts";
 import { toProduct } from "#server/utils/products.ts";
 import { generateSlug } from "#server/utils/slug.ts";
