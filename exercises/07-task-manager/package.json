@@ -3,25 +3,35 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "typecheck": "tsc --noEmit -p .nuxt/tsconfig.node.json && tsc --noEmit -p .nuxt/tsconfig.server.json",
     "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "argon2": "^0.45.1",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
-    "nitro": "^3.0.260903-beta",
     "nuxt": "^4.5.2",
+    "nuxt-auth-utils": "0.5.30",
     "pg": "^8.23.0",
     "vue": "^3.5.42",
-    "vue-router": "^5.3.1"
+    "vue-router": "^5.3.1",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
+    "@nuxt/test-utils": "^4.3.2",
     "@types/node": "^26.5.0",
     "@types/pg": "^8.23.1",
+    "@vue/test-utils": "^2.5.0",
     "drizzle-kit": "^0.31.10",
-    "tsx": "^4.23.13"
+    "happy-dom": "^20.14.0",
+    "tsx": "^4.23.13",
+    "vitest": "^5.0.0"
   }
 }
