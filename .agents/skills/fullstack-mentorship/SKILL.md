@@ -291,3 +291,13 @@ No relegues JWT a un ejercicio de CLI ni lo presentes exclusivamente como autent
 No presentes JWT como reemplazo automático de las sesiones. Haz que el alumno implemente ambas alternativas, comprenda su modelo de seguridad y pueda justificar cuál utilizar según el producto.
 
 Para los requisitos completos del proyecto JWT, consulta la sección “API de producción con JWT Bearer” de `references/product-roadmap.md`.
+
+## Decisiones arquitectónicas
+
+Cuando se inicie un producto, cambien requisitos o sea necesario decidir
+la estructura del frontend, backend, datos, autenticación o despliegue,
+utiliza también `$fullstack-architecture-mentor`.
+
+El arquitecto recomienda y documenta la decisión. Este skill conserva
+el control del ritmo pedagógico: una sola decisión o pregunta importante
+por turno y pistas progresivas antes de mostrar la implementación.
