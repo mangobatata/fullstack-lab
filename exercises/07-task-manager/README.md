@@ -58,3 +58,44 @@ mensajero tipado: cada operación equivale a un SQL que ya conoces
 
 Rama `exercise/07-task-manager`. Esquema `users`/`projects`/`tasks` migrado.
 Siguiente: primer endpoint (crear usuario, proyecto o tarea).
+
+## Pruebas de autenticación — Learning
+
+Objetivo: verificar por HTTP registro, login, consulta del usuario y logout,
+con PostgreSQL real. Cada caso crea sus propios usuarios; la limpieza elimina
+únicamente los emails generados por esta ejecución.
+
+```text
+Test -> registro -> PostgreSQL
+     -> login -> Set-Cookie
+     -> /me + Cookie -> usuario público
+     -> logout -> cookie vacía -> /me devuelve 401
+```
+
+Con PostgreSQL y `bun run dev` levantados, y la misma `DATABASE_URL` para
+servidor y tests:
+
+```bash
+bun run test tests/integration/auth.test.ts
+bun run typecheck
+```
+
+`TEST_BASE_URL` permite cambiar `http://localhost:3000`. Las pruebas usan Vitest,
+el runner de `package.json`. El typecheck comprueba los contextos Node (incluidos
+los tests) y servidor de Nuxt; requiere los archivos generados por `nuxt prepare`
+y TypeScript instalado en el workspace.
+
+Cobertura: éxito, validación, email duplicado, credenciales incorrectas,
+cookies ausentes o inválidas, usuario eliminado y logout. El logout comprueba
+el reemplazo de la cookie por el navegador; no demuestra revocación de una
+copia anterior de la cookie en el servidor.
+
+### Bitácora de Errores Reales
+
+- El test original eliminaba todos los usuarios, incluyendo el que necesitaba
+  para login. Corrección: preparar datos por caso y limpiar solo los propios.
+- Importaba `bun:test` aunque el script ejecutaba Vitest. Se unificó el runner.
+- Esperaba `connect.sid` y el texto `clear`: el proyecto utiliza `nuxt-session`
+  y logout devuelve su valor vacío.
+
+Pregunta de revisión: ¿por qué cada caso de login crea su propio usuario?
