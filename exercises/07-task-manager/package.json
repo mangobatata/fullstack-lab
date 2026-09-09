@@ -10,9 +10,18 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
     "nitro": "^3.0.260903-beta",
     "nuxt": "^4.5.2",
+    "pg": "^8.23.0",
     "vue": "^3.5.42",
     "vue-router": "^5.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.5.0",
+    "@types/pg": "^8.23.1",
+    "drizzle-kit": "^0.31.10",
+    "tsx": "^4.23.13"
   }
 }
