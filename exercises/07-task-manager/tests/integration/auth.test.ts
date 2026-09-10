@@ -1,195 +1,85 @@
-import { afterAll, beforeAll, describe, expect, it } from "bun:test";
-import { db } from "/home/brite/repos/fullstack-lab/exercises/07-task-manager/server/db";
-import { usersTable } from "/home/brite/repos/fullstack-lab/exercises/07-task-manager/server/db/schema";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
+import { db } from "../../server/db";
+import { usersTable } from "../../server/db/schema";
 
-let baseUrl = "http://localhost:3000";
+const baseUrl = process.env.TEST_BASE_URL ?? "http://localhost:3000";
+const runId = randomUUID();
+const email = `auth-${runId}@example.com`;
+const duplicateEmail = `duplicate-${runId}@example.com`;
+const password = "Test-password-123!";
+let loginCookie = "";
 
-afterAll(async () => {
-  await db.delete(usersTable);
-});
+function request(path: string, init: RequestInit = {}) {
+  return fetch(new URL(`/api/${path}`, baseUrl), {
+    ...init,
+    headers: { "Content-Type": "application/json", ...(init.headers ?? {}) },
+    signal: AbortSignal.timeout(10_000),
+  });
+}
+const body = (value: unknown): RequestInit => ({ body: JSON.stringify(value) });
+const cookieFrom = (response: Response) =>
+  response.headers.getSetCookie().find((v) => v.startsWith("nuxt-session="))?.split(";")[0] ?? "";
 
 beforeAll(async () => {
-  await db.delete(usersTable);
-  const [user] = await db
-    .insert(usersTable)
-    .values({
-      name: "Test User",
-      email: "test@example.com",
-      passwordHash: "$argon2id$v=19$m=65536,p=4,t=3$testhashfortesting",
-    })
-    .returning();
+  for (const [name, userEmail] of [["Auth User", email], ["Duplicate", duplicateEmail]]) {
+    const response = await request("auth/register", { method: "POST", ...body({ name, email: userEmail, password }) });
+    expect(response.status).toBe(201);
+  }
+});
+
+afterAll(async () => {
+  await db.delete(usersTable).where(eq(usersTable.email, email));
+  await db.delete(usersTable).where(eq(usersTable.email, duplicateEmail));
 });
 
 describe("Auth API", () => {
-  describe("POST /api/auth/register", () => {
-    it("debe registrar un nuevo usuario y devolver 201 sin passwordHash", async () => {
-      const body = {
-        name: "Test User 2",
-        email: "test2@example.com",
-        password: "password123",
-      };
-
-      const res = await fetch(`${baseUrl}/api/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      expect(res.status).toBe(201);
-      const data = await res.json();
-      expect(data).toHaveProperty("name", "Test User 2");
-      expect(data).toHaveProperty("email", "test2@example.com");
-      expect(data).not.toHaveProperty("passwordHash");
-    });
-
-    it("debe retornar 409 si el email ya existe", async () => {
-      const body = {
-        name: "Test User 3",
-        email: "test2@example.com",
-        password: "password123",
-      };
-
-      await fetch(`${baseUrl}/api/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      const res = await fetch(`${baseUrl}/api/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-
-      expect(res.status).toBe(409);
-    });
+  it("registra, normaliza email y no expone passwordHash", async () => {
+    const newEmail = `new-${runId}@example.com`;
+    const response = await request("auth/register", { method: "POST", ...body({ name: "New User", email: ` ${newEmail.toUpperCase()} `, password }) });
+    expect(response.status).toBe(201);
+    expect(await response.json()).toEqual({ name: "New User", email: newEmail });
+    const [stored] = await db.select().from(usersTable).where(eq(usersTable.email, newEmail));
+    expect(stored?.passwordHash).toBeTruthy();
+    expect(stored?.passwordHash).not.toBe(password);
+    await db.delete(usersTable).where(eq(usersTable.email, newEmail));
   });
 
-  describe("POST /api/auth/login", () => {
-    it("debe loguear y devolver set-cookie", async () => {
-      const res = await fetch(`${baseUrl}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: "test@example.com",
-          password: "password123",
-        }),
-      });
-
-      expect(res.status).toBe(200);
-      const setCookie = res.headers.get("set-cookie");
-      expect(setCookie).toBeTruthy();
-      expect(setCookie).toContain("nuxt-session");
-    });
-
-    it("debe fallar con 401 credenciales inválidas", async () => {
-      const res = await fetch(`${baseUrl}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: "test@example.com",
-          password: "wrongpassword",
-        }),
-      });
-
-      expect(res.status).toBe(401);
-      const data = await res.json();
-      expect(data.message).toBe("Invalid credentials.");
-    });
-
-    it("debe fallar con 401 email no existente", async () => {
-      const res = await fetch(`${baseUrl}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: "nonexistent@example.com",
-          password: "whatever",
-        }),
-      });
-
-      expect(res.status).toBe(401);
-      const data = await res.json();
-      expect(data.message).toBe("Invalid credentials.");
-    });
+  it("rechaza duplicados y body inválido", async () => {
+    expect((await request("auth/register", { method: "POST", ...body({ name: "Duplicate", email: duplicateEmail, password }) })).status).toBe(409);
+    expect((await request("auth/register", { method: "POST", ...body({ name: "A", email: "bad", password: "short" }) })).status).toBe(400);
   });
 
-  describe("GET /api/auth/me", () => {
-    let loginCookie: string | null = null;
-
-    beforeAll(async () => {
-      const res = await fetch(`${baseUrl}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: "test@example.com",
-          password: "password123",
-        }),
-      });
-      loginCookie = res.headers.get("set-cookie")?.split(";")[0];
-    });
-
-    it("debe devolver usuario logueado si hay cookie", async () => {
-      const res = await fetch(`${baseUrl}/api/auth/me`, {
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: loginCookie || "",
-        },
-      });
-
-      expect(res.status).toBe(200);
-      const data = await res.json();
-      expect(data).toHaveProperty("user");
-      expect(data.user).toHaveProperty("email", "test@example.com");
-    });
-
-    it("debe devolver 401 si no hay cookie", async () => {
-      const res = await fetch(`${baseUrl}/api/auth/me`, {
-        headers: { "Content-Type": "application/json" },
-      });
-
-      expect(res.status).toBe(401);
-    });
+  it("loguea, devuelve campos públicos y establece cookie", async () => {
+    const response = await request("auth/login", { method: "POST", ...body({ email, password }) });
+    expect(response.status).toBe(200);
+    const data = await response.json();
+    expect(data.user).toEqual({ id: expect.any(Number), name: "Auth User", email });
+    expect(data).not.toHaveProperty("passwordHash");
+    loginCookie = cookieFrom(response);
+    expect(loginCookie).toContain("nuxt-session=");
   });
 
-  describe("POST /api/auth/logout", () => {
-    let loginCookie: string | null = null;
+  it.each([["missing", `missing-${runId}@example.com`], ["wrong password", email]])("rechaza %s con 401 genérico", async (_label, loginEmail) => {
+    const response = await request("auth/login", { method: "POST", ...body({ email: loginEmail, password: _label === "wrong password" ? "Wrong-password-123!" : password }) });
+    expect(response.status).toBe(401);
+    expect((await response.json()).message).toBe("Invalid credentials.");
+  });
 
-    beforeAll(async () => {
-      const res = await fetch(`${baseUrl}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: "test@example.com",
-          password: "password123",
-        }),
-      });
-      loginCookie = res.headers.get("set-cookie")?.split(";")[0];
-    });
+  it("rechaza login inválido y /me sin cookie", async () => {
+    expect((await request("auth/login", { method: "POST", ...body({ email: "bad", password: "short" }) })).status).toBe(400);
+    expect((await request("auth/me")).status).toBe(401);
+  });
 
-    it("debe hacer logout y clear cookie", async () => {
-      const res = await fetch(`${baseUrl}/api/auth/logout`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: loginCookie || "",
-        },
-      });
-
-      expect(res.status).toBe(200);
-      const setCookie = res.headers.get("set-cookie");
-      expect(setCookie).toBeTruthy();
-    });
-
-    it("deve devolver 401 en /api/auth/me después de logout", async () => {
-      const res = await fetch(`${baseUrl}/api/auth/me`, {
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: loginCookie || "",
-        },
-      });
-
-      expect(res.status).toBe(401);
-    });
+  it("devuelve /me con cookie y logout la invalida", async () => {
+    const me = await request("auth/me", { headers: { Cookie: loginCookie } });
+    expect(me.status).toBe(200);
+    expect(await me.json()).toEqual({ user: { id: expect.any(Number), name: "Auth User", email } });
+    const logout = await request("auth/logout", { method: "POST", headers: { Cookie: loginCookie } });
+    expect(logout.status).toBe(200);
+    const clearedCookie = cookieFrom(logout);
+    expect(clearedCookie).toContain("nuxt-session=");
+    expect((await request("auth/me", { headers: { Cookie: clearedCookie } })).status).toBe(401);
   });
 });

@@ -31,12 +31,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  try {
-    // La FK elimina en cascada únicamente los proyectos de este usuario de prueba.
-    await db.delete(usersTable).where(eq(usersTable.email, email));
-  } finally {
-    await db.$client.end();
-  }
+  // La FK elimina en cascada únicamente los proyectos de este usuario de prueba.
+  await db.delete(usersTable).where(eq(usersTable.email, email));
 });
 
 describe("POST /api/projects", () => {
@@ -49,7 +45,11 @@ describe("POST /api/projects", () => {
       slug: expect.stringMatching(/-mi-proyecto$/), userId,
     });
     const [stored] = await db.select().from(projectsTable).where(eq(projectsTable.id, project.id));
-    expect(stored).toEqual(project);
+    expect(stored).toMatchObject(project);
+    expect(stored?.createdAt).toBeInstanceOf(Date);
+    expect(stored?.updatedAt).toBeInstanceOf(Date);
+    expect(Number.isNaN(stored!.createdAt.getTime())).toBe(false);
+    expect(Number.isNaN(stored!.updatedAt.getTime())).toBe(false);
   });
 
   it("rechaza crear sin sesión", async () => {
@@ -83,4 +83,24 @@ describe("POST /api/projects", () => {
     expect(response.status).toBe(201);
     expect((await response.json()).slug).toMatch(/-project$/);
   });
+
+  it("actualiza y elimina un proyecto propio sin body en 204", async () => {
+    const created = await post("projects", { projectName: "Proyecto temporal" });
+    const project = await created.json();
+    const updated = await fetch(`${baseUrl}/api/projects/${project.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Cookie: cookie },
+      body: JSON.stringify({ projectName: "Proyecto actualizado" }),
+    });
+    expect(updated.status).toBe(200);
+    expect(await updated.json()).toMatchObject({ id: project.id, projectName: "Proyecto actualizado" });
+
+    const deleted = await fetch(`${baseUrl}/api/projects/${project.id}`, {
+      method: "DELETE",
+      headers: { Cookie: cookie },
+    });
+    expect(deleted.status).toBe(204);
+    expect(await deleted.text()).toBe("");
+  });
+
 });

@@ -53,9 +53,9 @@ export default defineEventHandler(async (event) => {
   }
 
   // 6. Eliminación exitosa sin contenido de respuesta.
-  setResponseStatus(event, 200);
+  setResponseStatus(event, 204);
 
-  return { message: "Proyecto borrado." };
+  return null;
 });
 
 // 1. Exigir sesión válida.

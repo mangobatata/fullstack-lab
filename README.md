@@ -56,6 +56,7 @@ PostgreSQL, autenticación, testing y producción
 - [`docs/backend/03-nitro-revision-crud.md`](docs/backend/03-nitro-revision-crud.md) — Revisión del CRUD: identidad, validación y chequeo de tipos.
 
 - [`docs/backend/04-nitro-postgres-revision.md`](docs/backend/04-nitro-postgres-revision.md) — Revisión de validación y CRUD persistente; `Learning`.
+- [`docs/backend/05-task-manager-auth.md`](docs/backend/05-task-manager-auth.md) — Auth paso a paso: registro, login, cookie, usuario actual y logout; `Learning`.
 
 ### Bases de datos
 - [`docs/databases/01-postgres-productos.md`](docs/databases/01-postgres-productos.md) — PostgreSQL en Docker, tabla `products` con restricciones, CRUD SQL, SQL injection vs parametrizadas, cliente `pg`.
@@ -86,7 +87,7 @@ PostgreSQL, autenticación, testing y producción
 | **Consultas parametrizadas** | Practiced | 2026-09-07 | Inyección demostrada (`count 4`) vs `$1` (`count 0`) |
 | **Cliente `pg` en Node** | Practiced | 2026-09-07 | `Pool`, `DATABASE_URL` en `.env`, mapeo `NUMERIC→number`, `null→404` |
 | **CRUD Nitro + Postgres** | Practiced | 2026-09-08 | 06 verificado punta a punta con `probar-productos.sh`, slugs autogenerados |
-| **Task Manager (Nuxt + Drizzle)** | Learning | 2026-09-08 | Rama `exercise/07-task-manager`; pendiente modelar `users`, `projects`, `tasks` |
+| **Task Manager (Nuxt + Drizzle)** | Learning | 2026-09-08 | Esquema implementado; endpoints de auth y proyectos presentes; guía de auth disponible; comprensión y cierre pendientes |
 
 > **Escala de Dominio:**
 > - `Learning`: Concepto introducido; guiado.

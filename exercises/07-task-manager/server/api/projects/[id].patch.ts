@@ -1,9 +1,8 @@
 import { z } from "zod";
-import { v4 as uuidv4 } from "uuid";
 import { db } from "~~/server/db";
 import { projectsTable } from "~~/server/db/schema";
 import { and, eq } from "drizzle-orm";
-import { getPostgresErrorCode } from "../../utils/db-error";
+import { getPostgresErrorCode } from "../utils/db-error";
 
 const bodySchema = z.strictObject({
   projectName: z
@@ -72,11 +71,17 @@ export default defineEventHandler(async (event) => {
   try {
     const updatedProject = await db
       .update(projectsTable)
-      .set({ projectName: projectName })
-      .where(eq(projectsTable.id, projectId));
+      .set({ projectName })
+      .where(
+        and(
+          eq(projectsTable.id, projectId),
+          eq(projectsTable.userId, session.user.id),
+        ),
+      )
+      .returning();
 
     setResponseStatus(event, 200);
-    return updatedProject;
+    return updatedProject[0];
   } catch (error: unknown) {
     const errorCode = getPostgresErrorCode(error);
 
