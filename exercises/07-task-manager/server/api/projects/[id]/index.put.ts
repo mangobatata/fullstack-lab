@@ -2,8 +2,8 @@ import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
 import { db } from "~~/server/db";
 import { projectsTable } from "~~/server/db/schema";
-import { slugify } from "../utils/slug";
-import { getPostgresErrorCode } from "../utils/db-error";
+import { and, eq } from "drizzle-orm";
+import { getPostgresErrorCode } from "../../utils/db-error";
 
 const bodySchema = z.strictObject({
   projectName: z
@@ -11,14 +11,17 @@ const bodySchema = z.strictObject({
     .trim()
     .min(2, "El nombre debe tener al menos 2 caracteres.")
     .max(255, "El nombre no puede superar los 255 caracteres."),
- 
 });
+
+const projectIdSchema = z.coerce
+  .number()
+  .int("El ID debe ser un entero.")
+  .positive("El ID debe ser positivo.");
 
 type ProjectBody = z.infer<typeof bodySchema>;
 
 export default defineEventHandler(async (event) => {
   const session = await requireUserSession(event);
-
   if (!session?.user?.id) {
     throw createError({
       statusCode: 401,
@@ -38,30 +41,42 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const projectIdResult = projectIdSchema.safeParse(event.context.params?.id);
+
+  if (!projectIdResult.success) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Bad Request",
+      message:
+        projectIdResult.error.issues[0]?.message ?? "ID de proyecto inválido.",
+    });
+  }
+
   const { projectName } = result.data;
+  const projectId = projectIdResult.data;
 
-  const baseSlug = slugify(projectName);
-  // Reservar 7 caracteres para el prefijo y el guion dentro del límite de 255.
-  const slugSuffix = baseSlug.slice(0, 248).replace(/-+$/, "") || "project";
+  const [project] = await db
+    .select()
+    .from(projectsTable)
+    .where(
+      and(
+        eq(projectsTable.id, projectId),
+        eq(projectsTable.userId, session.user.id),
+      ),
+    );
 
-  const project: typeof projectsTable.$inferInsert = {
-    projectName,
-    slug: `${uuidv4().slice(0, 6)}-${slugSuffix}`,
-    userId: session.user.id,
-  };
+  if (!project) {
+    throw createError({ statusCode: 404, message: "Proyecto no encontrado." });
+  }
 
   try {
-    const [createdProject] = await db
-      .insert(projectsTable)
-      .values(project)
-      .returning({
-        id: projectsTable.id,
-        projectName: projectsTable.projectName,
-        slug: projectsTable.slug,
-        userId: projectsTable.userId,
-      });
-    setResponseStatus(event, 201);
-    return createdProject;
+    const updatedProject = await db
+      .update(projectsTable)
+      .set({ projectName: projectName })
+      .where(eq(projectsTable.id, projectId));
+
+    setResponseStatus(event, 200);
+    return updatedProject;
   } catch (error: unknown) {
     const errorCode = getPostgresErrorCode(error);
 
@@ -76,10 +91,7 @@ export default defineEventHandler(async (event) => {
     throw error;
   }
 });
-
-// 1. Verificar que exista una sesión válida.
-// 2. Leer y validar projectName del body.
-// 3. Generar el slug desde projectName.
-// 4. Obtener userId desde session.user.id.
-// 5. Insertar el proyecto.
-// 6. Devolver el proyecto creado con status 201.
+// verifico session de usuario
+// selecciono el projecto del user por el id del proyecto y del usuario
+// lee el body y valido
+// actualizo el proyecto con los datos del body
